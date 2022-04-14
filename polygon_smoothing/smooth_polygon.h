@@ -10,6 +10,7 @@ Description: Declaration of the SmoothPolygon class members, Point class members
 #define SMOOTH_POLYGON_H_
 
 #include <vector>
+#include <iostream>
 using namespace std;
 
 class Point
@@ -32,6 +33,12 @@ public:
     }
     void setY(float b) {
         this->b = b;
+    }
+    friend std::ostream& operator << (std::ostream& out, const Point& point)
+    {
+        out << "( " << point.a << ", " << point.b << " )";
+
+        return out;
     }
 };
 

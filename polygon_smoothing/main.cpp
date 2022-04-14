@@ -26,13 +26,15 @@ int main(int argc, char** argv)
 
     SmoothPolygon* smooth_polygon = new SmoothPolygon(polygon, smooth_quality, smooth_points);
     
-
+    cout << "Major Points" << endl;
     for (int i = 0; i < smooth_polygon->num_major_points; ++i)
-        cout << "major points : " << smooth_polygon->major_points[i].a << " " << smooth_polygon->major_points[i].b << endl;
+        cout << smooth_polygon->major_points[i] << endl;
     
+    cout << "======================" << endl << endl;
 
     // output : smooth polygon edge points(minor points)
+    cout << "Minor Points" << endl;
     for (int i = 0; i < smooth_polygon->num_minor_points; ++i) 
-        cout << "x: " << smooth_polygon->minor_points[i].a << " y: " << smooth_polygon->minor_points[i].b << endl;
+        cout << smooth_polygon->minor_points[i] << endl;
     
 }
