@@ -1,5 +1,7 @@
 #include "smooth_polygon.h"
 #include <iostream>
+#include <stdlib.h>
+
 
 Point find_between_point(Point begin_point, Point end_point, float alpha)
 {
@@ -44,4 +46,30 @@ Point calc_bezier_point(Point begin_point, Point middle_point, Point end_point, 
     result.setY(y_result);
 
     return result;
+}
+
+double dist(double x1, double y1, double x2, double y2) {
+    return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+}
+
+double gradient(double x1, double y1, double x2, double y2) {
+    if (x1 == x2) {
+        if(y2 > y1) return 100000;
+        else return -100000;
+    }
+    
+    return (y1 - y2)/ (x1 - x2);
+}
+
+int lowest_idx(vector<Point> p) {
+    double min = 1000000;
+    int li = 0;
+    for (vector<int>::size_type i = 0; i < p.size() - 1; i++) {
+        double d = dist(p[i + 1].x(), p[i + 1].y(), p[i].x(), p[i].y());
+        if (min > d) {
+            li = i;
+            min = d;
+        }
+    }
+    return li;
 }

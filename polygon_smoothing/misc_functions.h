@@ -15,4 +15,8 @@ Point calc_bezier_point(Point begin_point, Point middle_point,
     Point end_point, float t);
 // Function to calculate the point position by bezier_curve
 
+double dist(double x1, double y1, double x2, double y2);
+double gradient(double x1, double y1, double x2, double y2);
+int lowest_idx(vector<Point> p);
+
 #endif // MISC_FUNCTIONS_H_

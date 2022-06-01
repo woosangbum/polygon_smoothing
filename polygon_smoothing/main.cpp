@@ -7,19 +7,39 @@ Description: Main program file with entrance point. Create Polygon and get smoot
 
 #include "smooth_polygon.h"
 #include <vector>
-#include <iostream>
-
+#include <math.h>
 
 using namespace std;
+
+
 int main(int argc, char** argv)
 {
     // Create the smooth polygon object
     vector<Point> polygon;
-    polygon.push_back(Point(0.0, 0.0));
-    polygon.push_back(Point(15.0, 2.0));
-    polygon.push_back(Point(27.0, 17.2));
-    polygon.push_back(Point(17.4, 22.7));
-    polygon.push_back(Point(-10.0, 15.24));
+    polygon.push_back(Point(192.0, 186.0));
+    polygon.push_back(Point(228.0, 186.0));
+    polygon.push_back(Point(229.0, 187.0));
+    polygon.push_back(Point(231.0, 191.0));
+    polygon.push_back(Point(237.0, 205.0));
+    polygon.push_back(Point(260.0, 259.0));
+    polygon.push_back(Point(280.0, 306.0)); //
+    polygon.push_back(Point(279.0, 308.0));
+    polygon.push_back(Point(277.0, 311.0));
+    polygon.push_back(Point(264.0, 329.0));
+    polygon.push_back(Point(211.0, 402.0));
+    polygon.push_back(Point(209.0, 404.0));
+    polygon.push_back(Point(208.0, 404.0)); // /
+    polygon.push_back(Point(206.0, 403.0));
+    polygon.push_back(Point(203.0, 401.0));
+    polygon.push_back(Point(152.0, 364.0));
+    polygon.push_back(Point(141.0, 356.0));
+    polygon.push_back(Point(138.0, 353.0));
+    polygon.push_back(Point(138.0, 352.0)); //
+    polygon.push_back(Point(143.0, 336.0));
+    polygon.push_back(Point(168.0, 259.0));
+
+    
+
 
     float smooth_quality = 0.45; // 0.05 <= smooth_quilty <= 0.45
     int smooth_points = 10;

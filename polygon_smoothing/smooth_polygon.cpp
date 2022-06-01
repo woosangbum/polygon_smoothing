@@ -16,6 +16,26 @@ Description: Definition of the SmoothPolygon class methods.
 
 SmoothPolygon::SmoothPolygon(vector<Point> mp, float rq, int sp)
 {
+    double lowest_dist = 0;
+    while (lowest_dist < 100) { // 뭉쳐있는 점 처리
+        int li = lowest_idx(mp);
+        lowest_dist = dist(mp[li + 1].x(), mp[li + 1].y(), mp[li].x(), mp[li].y());
+
+        mp[li] = Point((mp[li + 1].x() + mp[li].x()) / 2, (mp[li + 1].y() + mp[li].y()) / 2);
+        mp.erase(mp.begin() + li + 1);
+    }
+
+    double cur_gradient = gradient(mp[1].x(), mp[1].y(), mp[0].x(), mp[0].y());
+
+    for (vector<int>::size_type i = 1; i < mp.size() - 1; i++) {
+        double g = gradient(mp[i + 1].x(), mp[i + 1].y(), mp[i].x(), mp[i].y());
+
+        if (fabs(cur_gradient - g) < 1.0) {
+            mp.erase(mp.begin() + i);
+        }
+        cur_gradient = g;
+    }
+
     // create the polygon
     this->num_major_points = mp.size();
     this->num_smooth_points = sp;
@@ -32,6 +52,8 @@ SmoothPolygon::SmoothPolygon(vector<Point> mp, float rq, int sp)
 
 void SmoothPolygon::setMajorPoints(vector<Point> mp)
 {
+    
+
     for (int i = 0; i < this->num_major_points; ++i)
     { 
         this->major_points.push_back(mp[i]);
