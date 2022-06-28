@@ -44,23 +44,39 @@ public:
 
 class SmoothPolygon
 {
-public:
-    int num_major_points;  // Number of major points that form an outer polygon
-    vector<Point> major_points;  // Vector of the major polygon points
-
+private:
+    Point entryPoint;
+    Point secondPoint;
+    vector<Point> entryPath;
     float round_qualities;  // // Rounding quality of the polygon corners 
     int num_smooth_points;  // Number of the single corner smooth points
+
+    // polygon
+    int num_major_points;  // Number of major points that form an outer polygon
+    vector<Point> major_points;  // Vector of the major polygon points
     int num_minor_points;  // Number of minor points that form a smoothed polygon
     vector<Point> minor_points;  // Vector of the minor polygon points
 
-    SmoothPolygon(vector<Point> mp, float rq, int sp);
-private:
+    // entry path
+    int num_major_points_entry;  // Number of major points that form an outer polygon
+    vector<Point> major_points_entry;  // Vector of the major polygon points
+    int num_minor_points_entry;  // Number of minor points that form a smoothed polygon
+    vector<Point> minor_points_entry;  // Vector of the minor polygon points
 
     // Method for calculation of the coordinates of major polygon points
     void setMajorPoints(vector<Point> mp);
 
     // Method for calculation of the coordinates of minoe polygon points
     void calcMinorPoints();
+
+    void setMajorPoints_entry(vector<Point> mp);
+    void calcMinorPoints_entry();
+
+public:
+    SmoothPolygon(float rq, int sp); // constructor
+    vector<Point> getSmoothPolygon(vector<Point> mp);
+    vector<Point> getEntryPath(Point startPoint, vector<Point> mp);
+
 };
 
 

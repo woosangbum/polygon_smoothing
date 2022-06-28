@@ -1,6 +1,5 @@
 #include "smooth_polygon.h"
-#include <iostream>
-#include <stdlib.h>
+#include "misc_functions.h"
 
 
 Point find_between_point(Point begin_point, Point end_point, float alpha)
@@ -72,4 +71,19 @@ int lowest_idx(vector<Point> p) {
         }
     }
     return li;
+}
+
+Point closestPoint(Point s, vector<Point> v) {
+    Point cp = Point(100000, 100000);
+    double minDist = dist(cp.a, cp.b, s.a, s.b);
+
+    // get vertex closest to the current position
+    for (int i = 0; i < v.size(); i++) {
+        double d = dist(v[i].a, v[i].b, s.a, s.b);
+        if (minDist > d && d >= 10.0) {
+            cp = v[i];
+            minDist = d;
+        }
+    }
+    return cp;
 }
