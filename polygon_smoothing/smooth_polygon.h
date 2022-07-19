@@ -68,7 +68,7 @@ private:
 
     // Method for calculation of the coordinates of minoe polygon points
     void calcMinorPoints();
-    vector<Point> calcMinorPoints_Each(int mi, float rt);
+    vector<Point> calcMinorPoints_Each(vector<Point> mp, int mpn, int mi, float rt, int sp);
 
     void setMajorPoints_entry(vector<Point> mp);
     void calcMinorPoints_entry();
@@ -77,7 +77,7 @@ private:
 public:
     SmoothPolygon(float rq, int sp); // constructor
     vector<Point> getSmoothPolygon(vector<Point> mp, float mc);
-    vector<Point> getEntryPath(Point startPoint, vector<Point> mp);
+    vector<Point> getEntryPath(Point startPoint);
 
 };
 

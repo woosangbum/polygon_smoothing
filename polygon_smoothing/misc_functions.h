@@ -19,4 +19,7 @@ double dist(double x1, double y1, double x2, double y2);
 double gradient(double x1, double y1, double x2, double y2);
 int lowest_idx(vector<Point> p);
 Point closestPoint(Point s, vector<Point> v);
+Point closestPoint100(Point s, vector<Point> v);
+float getCurvature(Point p1, Point p2, Point p3);
+double angle(Point a, Point b, Point c);
 #endif // MISC_FUNCTIONS_H_

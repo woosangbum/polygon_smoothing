@@ -5,12 +5,10 @@ Description: Definition of the SmoothPolygon class methods.
 ================================================================================
 */
 
-// Program includes:
 #include "smooth_polygon.h"
 #include "misc_functions.h"
 
-
-
+//initiallize
 SmoothPolygon::SmoothPolygon(float rq, int sp)
 {
 
@@ -20,9 +18,9 @@ SmoothPolygon::SmoothPolygon(float rq, int sp)
 }
 
 vector<Point> SmoothPolygon::getSmoothPolygon(vector<Point> mp, float mc) {
-    /*
-    double lowest_dist = 0;
-    while (lowest_dist < 200) { // ¹¶ÃÄÀÖ´Â Á¡ Ã³¸®
+    
+    double lowest_dist = dist(mp[1].x(), mp[1].y(), mp[0].x(), mp[0].y());
+    while (lowest_dist < 100) { // ¹¶ÃÄÀÖ´Â Á¡ Ã³¸®
         int li = lowest_idx(mp);
         lowest_dist = dist(mp[li + 1].x(), mp[li + 1].y(), mp[li].x(), mp[li].y());
 
@@ -30,6 +28,7 @@ vector<Point> SmoothPolygon::getSmoothPolygon(vector<Point> mp, float mc) {
         mp.erase(mp.begin() + li + 1);
     }
 
+    //µ¿ÀÏ ±â¿ï±â Á¡µé Á¦°Å
     double cur_gradient = gradient(mp[1].x(), mp[1].y(), mp[0].x(), mp[0].y());
 
     for (vector<int>::size_type i = 1; i < mp.size() - 1; i++) {
@@ -40,7 +39,7 @@ vector<Point> SmoothPolygon::getSmoothPolygon(vector<Point> mp, float mc) {
         }
         cur_gradient = g;
     }
-    */
+    
 
     // create the polygon
     this->num_major_points = mp.size();
@@ -56,34 +55,7 @@ vector<Point> SmoothPolygon::getSmoothPolygon(vector<Point> mp, float mc) {
     return this->minor_points;
 }
 
-vector<Point> SmoothPolygon::getEntryPath(Point startPoint, vector<Point> mp) {
-    // create the entry path
-    this->entryPoint = closestPoint(startPoint, mp);
-    this->secondPoint = closestPoint(entryPoint, mp);
-    this->entryPath.push_back(startPoint);
-    this->entryPath.push_back(entryPoint);
-    this->entryPath.push_back(secondPoint);
-
-    this->num_major_points_entry = entryPath.size();
-    this->num_smooth_points = this->num_smooth_points;
-    this->num_minor_points_entry = this->num_smooth_points + 2;
-
-    // round qualities
-    this->round_qualities = this->round_qualities;
-
-    // Calculate coordinates of the polygon major and minor points (de Casteljan algorithm)
-    this->setMajorPoints_entry(entryPath);
-    this->minor_points_entry.push_back(startPoint);
-
-
-    this->calcMinorPoints_entry();
-
-    this->minor_points_entry.push_back(this->secondPoint);
-
-    return this->minor_points_entry;
-}
-
-
+// Smoothing Polygon
 void SmoothPolygon::setMajorPoints(vector<Point> mp)
 {
     
@@ -152,7 +124,7 @@ void SmoothPolygon::calcMinorPoints()
     }
 }
 
-vector<Point> SmoothPolygon::calcMinorPoints_Each(int mi, float rt)
+vector<Point> SmoothPolygon::calcMinorPoints_Each(vector<Point> mp, int mpn, int mi, float rt, int sp)
 {
     Point prev_major_point;  // Previous major point of the polygon
     Point cur_major_point;  // Curent major point of the polygon
@@ -171,23 +143,23 @@ vector<Point> SmoothPolygon::calcMinorPoints_Each(int mi, float rt)
     vector<Point> minorPoints;
 
     // Current major point definition:
-    cur_major_point = this->major_points[mi];
+    cur_major_point = mp[mi];
 
     // Previous major point definition:
     if (mi == 0)
-        prev_major_point = this->major_points[this->num_major_points - 1];
+        prev_major_point = mp[mpn - 1];
     else
-        prev_major_point = this->major_points[mi - 1];
+        prev_major_point = mp[mi - 1];
 
     // Next major point definition:
-    if (mi == (this->num_major_points - 1))
-        next_major_point = this->major_points[0];
+    if (mi == (mpn - 1))
+        next_major_point = mp[0];
     else
-        next_major_point = this->major_points[mi + 1];
+        next_major_point = mp[mi + 1];
 
     // Calculate the begin and end point for Bezier points calculation:
     round_quality = rt;
-    delta_t = 1.0f / (this->num_smooth_points - 1);
+    delta_t = 1.0f / (sp - 1);
     t = 0.0f;
 
     begin_edge_point = find_between_point(prev_major_point, cur_major_point,
@@ -195,7 +167,7 @@ vector<Point> SmoothPolygon::calcMinorPoints_Each(int mi, float rt)
     end_edge_point = find_between_point(cur_major_point, next_major_point, round_quality);
 
     // Cycle to calculate the minor point positions
-    for (j = 0; j < this->num_smooth_points; ++j)
+    for (j = 0; j < sp; ++j)
     {
         result_minor_point = calc_bezier_point(begin_edge_point, cur_major_point,
             end_edge_point, t);
@@ -203,8 +175,106 @@ vector<Point> SmoothPolygon::calcMinorPoints_Each(int mi, float rt)
 
         t += delta_t;
     }
-
     return minorPoints;
+}
+
+void SmoothPolygon::checkCurvature(float mc)
+{
+    int lastPoint = num_smooth_points - 1;
+    int midPoint = num_smooth_points/2;
+    double R;
+    double R_temp;
+    float curvature_t = 0;
+
+    vector<Point> tempMinorPoints;
+
+    for (int i = 0; i < num_major_points * num_smooth_points; i += num_smooth_points) {
+        float q_temp = this->round_qualities;
+
+        R = getCurvature(this->minor_points[i], this->minor_points[i + midPoint], this->minor_points[i + lastPoint]);
+        float curvature = 1 / R;
+        cout << "°î·ü ¹Ý°æ È®ÀÎ Àü: " << curvature << endl;
+        curvature_t = curvature;
+        while (curvature_t > mc && q_temp <= 4.5) {
+            q_temp += 0.1;
+            
+            tempMinorPoints = calcMinorPoints_Each(this->major_points, this->num_major_points, i/num_smooth_points, q_temp, this->num_smooth_points);
+
+            for (int j = 0; j < this->num_smooth_points; j++) {
+                this->minor_points[i + j] = tempMinorPoints[j];
+            }
+            R_temp = getCurvature(this->minor_points[i], this->minor_points[i + midPoint], this->minor_points[i + lastPoint]);
+            
+            curvature_t = 1 / R_temp;
+        }
+        cout << "°î·ü ¹Ý°æ È®ÀÎ ÈÄ: " << curvature_t << endl;
+
+
+    }
+    
+}
+
+// Smoothing Entry Path
+vector<Point> SmoothPolygon::getEntryPath(Point startPoint) {
+    // create the entry path
+    //this->entryPoint = closestPoint(startPoint, mp);
+    //this->secondPoint = closestPoint(entryPoint, mp);
+    //vector<Point> tempMinorPoints;
+    //int entry = 0;
+    //Point entryPoint;
+    //Point secondPoint;
+    vector<Point> entryPath;
+    //Point Point1= this->minor_points[0];
+    //Point Point2= closestPoint100(Point1, this->minor_points);
+    //vector<Point> ep;
+    //ep.push_back(startPoint);
+    //ep.push_back(Point1);
+    //ep.push_back(Point2);
+    //int lastPoint = num_smooth_points - 1;
+    //int midPoint = num_smooth_points / 2;
+    //float minCost = getCurvature(ep[0], ep[1], ep[2]);
+    //Point a[2];
+    //vector<Point> temp;
+    //for (int i = 0; i < num_minor_points; i++) {
+    //        
+    //    temp = calcMinorPoints_Each(ep, 3, 1, this->round_qualities, this->num_smooth_points);
+    //
+    //    float R = getCurvature(temp[0], temp[midPoint], temp[lastPoint]);
+    //    if (minCost >= R) {
+    //        minCost = R;
+    //        ep[1] = this->minor_points[i];
+    //        ep[2] = closestPoint100(ep[1], this->minor_points);
+    //        a[0] = temp[midPoint];
+    //        a[1] = temp[lastPoint];
+    //    }
+    //}
+    //
+    //entryPath.push_back(startPoint);
+    //entryPath.push_back(a[0]);
+    //entryPath.push_back(a[1]);
+    
+    Point Point1 = this->major_points[0];
+    Point Point2 = closestPoint100(Point1, this->major_points);
+    entryPath.push_back(startPoint);
+    entryPath.push_back(Point1);
+    double cur_gradient = gradient(startPoint.x(), startPoint.y(), Point1.x(), Point1.y());
+    double g = gradient(Point1.x(), Point1.y(), Point2.x(), Point2.y());
+    double ming = fabs(cur_gradient - g);
+    float next;
+    for (vector<int>::size_type i = 1; i < this->major_points.size(); i++) {
+        if (i == this->major_points.size() - 1) next = 0;
+        else next = i + 1;
+
+        g = gradient(this->major_points[next].x(), this->major_points[next].y(), this->major_points[i].x(), this->major_points[i].y());
+        cur_gradient = gradient(startPoint.x(), startPoint.y(), this->major_points[i].x(), this->major_points[i].y());
+
+        if (fabs(cur_gradient - g) <= ming) {
+            entryPath[1] = this->major_points[i];
+        }
+    }
+    //entryPath[1] = closestPoint(entryPath[1], this->minor_points);
+    
+    return entryPath;
 }
 
 void SmoothPolygon::setMajorPoints_entry(vector<Point> mp)
@@ -265,47 +335,3 @@ void SmoothPolygon::calcMinorPoints_entry()
     }
 
 }
-
-void SmoothPolygon::checkCurvature(float mc)
-{
-    int lastPoint = num_smooth_points - 1;
-    int midPoint = num_smooth_points/2;
-    double R;
-    double R_temp;
-    float curvature_t = 0;
-
-    vector<Point> tempMinorPoints;
-
-    for (int i = 0; i < num_major_points * num_smooth_points; i += num_smooth_points) {
-        float q_temp = this->round_qualities;
-
-        double cross = sqrt(pow((this->minor_points[i + lastPoint].a - this->minor_points[i + midPoint].a), 2) + pow((this->minor_points[i + lastPoint].b - this->minor_points[i + midPoint].b), 2));
-        double cross1 = sqrt(pow((this->minor_points[i + midPoint].a - this->minor_points[i].a), 2) + pow((this->minor_points[i + midPoint].b - this->minor_points[i].b), 2));
-        double cross2 = sqrt(pow((this->minor_points[i + lastPoint].a - this->minor_points[i].a), 2) + pow((this->minor_points[i + lastPoint].b - this->minor_points[i].b), 2));
-        double cross3 = abs(((this->minor_points[i + midPoint].a - this->minor_points[i + midPoint].a)*(this->minor_points[i].b - this->minor_points[i + midPoint].b)) - ((this->minor_points[i + lastPoint].b - this->minor_points[i + midPoint].b)*(this->minor_points[i].a - this->minor_points[i + midPoint].a)));
-        R = (cross*cross1*cross2) / (2 * cross3);
-        float curvature = 1 / R;
-        cout << curvature << endl;
-        curvature_t = curvature;
-        while (curvature_t > mc && q_temp <= 4.5) {
-            q_temp += 0.01;
-
-            tempMinorPoints = calcMinorPoints_Each(i, q_temp);
-            for (int j = 0; j < this->num_smooth_points; j++) {
-                this->minor_points[i + j] = tempMinorPoints[j];
-            }
-            double cross_t = sqrt(pow((this->minor_points[i + lastPoint].a - this->minor_points[i + midPoint].a), 2) + pow((this->minor_points[i + lastPoint].b - this->minor_points[i + midPoint].b), 2));
-            double cross1_t = sqrt(pow((this->minor_points[i + midPoint].a - this->minor_points[i].a), 2) + pow((this->minor_points[i + midPoint].b - this->minor_points[i].b), 2));
-            double cross2_t = sqrt(pow((this->minor_points[i + lastPoint].a - this->minor_points[i].a), 2) + pow((this->minor_points[i + lastPoint].b - this->minor_points[i].b), 2));
-            double cross3_t = abs(((this->minor_points[i + midPoint].a - this->minor_points[i + midPoint].a) * (this->minor_points[i].b - this->minor_points[i + midPoint].b)) - ((this->minor_points[i + lastPoint].b - this->minor_points[i + midPoint].b) * (this->minor_points[i].a - this->minor_points[i + midPoint].a)));
-            R_temp = (cross_t * cross1_t * cross2_t) / (2 * cross3_t);
-            curvature_t = 1 / R_temp;
-        }
-        cout << "°î·ü ¹Ý°æ È®ÀÎ ÈÄ: " << curvature_t << endl;
-
-
-    }
-    
-}
-
-
