@@ -11,6 +11,7 @@ Description: Declaration of the SmoothPolygon class members, Point class members
 
 #include <vector>
 #include <iostream>
+
 using namespace std;
 
 class Point
@@ -48,21 +49,19 @@ private:
     Point entryPoint;
     Point secondPoint;
     vector<Point> entryPath;
-    float round_qualities;  // // Rounding quality of the polygon corners 
-    int num_smooth_points;  // Number of the single corner smooth points
+    
 
     // polygon
-    int num_major_points;  // Number of major points that form an outer polygon
+    int num_major_points = 0;  // Number of major points that form an outer polygon
     vector<Point> major_points;  // Vector of the major polygon points
-    int num_minor_points;  // Number of minor points that form a smoothed polygon
+    int num_minor_points = 0;  // Number of minor points that form a smoothed polygon
     vector<Point> minor_points;  // Vector of the minor polygon points
 
     // entry path
-    int num_major_points_entry;  // Number of major points that form an outer polygon
+    int num_major_points_entry = 0;  // Number of major points that form an outer polygon
     vector<Point> major_points_entry;  // Vector of the major polygon points
-    int num_minor_points_entry;  // Number of minor points that form a smoothed polygon
+    int num_minor_points_entry = 0;  // Number of minor points that form a smoothed polygon
     vector<Point> minor_points_entry;  // Vector of the minor polygon points
-
     // Method for calculation of the coordinates of major polygon points
     void setMajorPoints(vector<Point> mp);
 
@@ -75,10 +74,13 @@ private:
     void checkCurvature(float mc);
 
 public:
+    float round_qualities = 0;  // // Rounding quality of the polygon corners 
+    int num_smooth_points = 0;  // Number of the single corner smooth points
+    SmoothPolygon(); // default constructor
     SmoothPolygon(float rq, int sp); // constructor
     vector<Point> getSmoothPolygon(vector<Point> mp, float mc);
     vector<Point> getEntryPath(Point startPoint);
-
+    ~SmoothPolygon() { };
 };
 
 

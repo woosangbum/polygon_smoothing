@@ -22,4 +22,6 @@ Point closestPoint(Point s, vector<Point> v);
 Point closestPoint100(Point s, vector<Point> v);
 float getCurvature(Point p1, Point p2, Point p3);
 double angle(Point a, Point b, Point c);
+Point pointToLine(Point mp1, Point mp2, Point ugv);
+void equation(const double* var1, const double* var2, Point& H);
 #endif // MISC_FUNCTIONS_H_

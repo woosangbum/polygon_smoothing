@@ -1,61 +1,30 @@
-/*
+ï»¿/*
 ================================================================================
 Filename: main.cpp
 Description: Main program file with entrance point. Create Polygon and get smoothing Points
 ================================================================================
 */
 
-#include "smooth_polygon.h"
 #include <vector>
 #include <fstream>
-#include "misc_functions.h"
+#include "smooth_polygon.h"
+#include "select_area.h"
 using namespace std;
-
-#define NUM_AREA 2
-#define NUM_UGV 2
-
-void selectArea(vector<SmoothPolygon> sp, Point* ugv, int areaUGV[]) {
-    vector<Point> ep;
-    float ugvsCost[2][2];
-
-    // ¿µ¿ª ¼±ÅÃ ¾Ë°í¸®Áò
-    for (int i = 0; i < NUM_AREA; i++) {
-        for (int j = 0; j < NUM_UGV; j++) {
-            ep = sp[i].getEntryPath(ugv[j]); // °¢ ugv-areaÀÇ °Å¸® °è»ê
-            ugvsCost[i][j] = dist(ep[0].a, ep[0].b, ep[1].a, ep[1].b);
-        }
-    }
-
-    bool selected[NUM_AREA] = { 0, };
-    float minCost = ugvsCost[0][0];
-
-    for (int i = 0; i < NUM_AREA; i++) {
-        for (int j = 0; j < NUM_UGV; j++) {
-
-            areaUGV[i] = j;
-            if (minCost >= ugvsCost[i][j] && !selected[j]) {
-                areaUGV[i] = j;
-                selected[j] = true;
-                break;
-            }
-        }
-    }
-}
-
 
 int main(int argc, char** argv)
 {
-    // input data
-    vector<SmoothPolygon> sp;
-    vector < vector<Point>> area;
-    vector<Point> area1;
-    vector<Point> area2;
-    Point ugv[2];
-    int areaUGV[2];
-    
-    vector<vector<Point>> smoothArea;
-    vector<Point> entryPath1;
-    vector<Point> entryPath2;
+    // input data =============================================
+    int num_areas = 2;
+    int num_ugvs = 2;
+    SmoothPolygon *sp= new SmoothPolygon[num_areas];
+    vector < vector<Point>> area; // Areas
+    vector<Point> area1;  // Area1
+    vector<Point> area2;  // Area2
+
+    Point *ugv = new Point[num_ugvs];  // ugv's initial position
+    float smooth_quality = 0.1; // 0.05 <= smooth_quilty <= 0.45
+    int smooth_points = 10;
+    float Minimum_turning_radius = 12;
 
     area1.push_back(Point(165.0, 219.0));
     area1.push_back(Point(169.0, 223.0));
@@ -84,98 +53,103 @@ int main(int argc, char** argv)
     area.push_back(area2);
     area.push_back(area1);
 
-    float smooth_quality = 0.1; // 0.05 <= smooth_quilty <= 0.45
-    int smooth_points = 10;
-    float Minimum_turning_radius = 12;
-    
 
+    // out put Data ========================================
+    int *areaUGV = new int[num_areas];  // ugv's number for each area
+    vector<vector<Point>> smoothArea;
+    vector<Point> *entryPath = new vector<Point>[num_ugvs];
 
     // =============================================================
     // processing
-    for (int i = 0; i < NUM_AREA; i++)
-        sp.push_back(SmoothPolygon(smooth_quality, smooth_points));
-    for (int i = 0; i < NUM_AREA; i++)
-        smoothArea.push_back(sp[i].getSmoothPolygon(area[i], 1 / Minimum_turning_radius));
-    
-    selectArea(sp, ugv, areaUGV); // ¿µ¿ª ¼±ÅÃ
+    for (int i = 0; i < num_areas; i++){
+        sp[i].num_smooth_points = smooth_points;
+        sp[i].round_qualities = smooth_quality;
+        smoothArea.push_back(sp[i].getSmoothPolygon(area[i], 1 / Minimum_turning_radius)); // smooting ëœ ì˜ì—­ ê²½ë¡œ ì €ìž¥
+    }
 
-    entryPath1 = sp[0].getEntryPath(ugv[areaUGV[0]]);
-    entryPath2 = sp[1].getEntryPath(ugv[areaUGV[1]]);
+    selectArea(sp, ugv, areaUGV, num_areas, num_ugvs); // ì˜ì—­ ì„ íƒ
 
+    for (int i = 0; i < num_areas; i++) {
+        entryPath[i] = sp[i].getEntryPath(ugv[areaUGV[i]]);  // ê° ì˜ì—­ë³„ ì§„ìž…ê²½ë¡œ ìƒì„±
+    }
 
 
     // ===============================================================
-    //DEBUG
-    cout << "ÃÖ¼ÒÈ¸Àü¹Ý°æ : " << 1 / Minimum_turning_radius << endl;
-    cout << "Polygon Major Points" << endl;
-    string filePath = "C:\\Users\\daniel\\Desktop\\major.txt";
+    ////DEBUG
+    //cout << "ìµœì†ŒíšŒì „ë°˜ê²½ : " << 1 / Minimum_turning_radius << endl;
+    //cout << "Polygon Major Points" << endl;
+    //string filePath = "C:\\Users\\daniel\\Desktop\\major.txt";
 
-    ofstream writeFile(filePath.data());
+    //ofstream writeFile(filePath.data());
 
-    for (int i = 0; i < area[0].size(); i++) {
-        if (writeFile.is_open()) {
-            writeFile << area[0][i] << endl;
-            
-        }
-    }
+    //for (int i = 0; i < area[0].size(); i++) {
+    //    if (writeFile.is_open()) {
+    //        cout << area[0][i] << endl;
+    //        writeFile << area[0][i] << endl;
+    //        
+    //    }
+    //}
 
-    string filePath7 = "C:\\Users\\daniel\\Desktop\\major2.txt";
+    //string filePath7 = "C:\\Users\\daniel\\Desktop\\major2.txt";
 
-    ofstream writeFile7(filePath7.data());
-    for (int i = 0; i < area[1].size(); i++) {
-        if (writeFile7.is_open()) {
-            writeFile7 << area[1][i] << endl;
+    //ofstream writeFile7(filePath7.data());
+    //for (int i = 0; i < area[1].size(); i++) {
+    //    if (writeFile7.is_open()) {
+    //        cout << area[1][i] << endl;
+    //        writeFile7 << area[1][i] << endl;
 
-        }
-    }
+    //    }
+    //}
 
-    writeFile.close();
-    writeFile7.close();
-        
-    
-    cout << "======================" << endl;
-    cout << endl;
+    //writeFile.close();
+    //writeFile7.close();
+    //    
+    //
+    //cout << "======================" << endl;
+    //cout << endl;
 
-    string filePath2 = "C:\\Users\\daniel\\Desktop\\minor.txt";
-    ofstream writeFile2(filePath2.data());
-    cout << "Polygon Minor Points" << endl;
-    for (int i = 0; i < smoothArea[0].size(); ++i) {
-        if (writeFile2.is_open()) {
-            writeFile2 << smoothArea[0][i] << endl;
-        }
-    }
+    //string filePath2 = "C:\\Users\\daniel\\Desktop\\minor.txt";
+    //ofstream writeFile2(filePath2.data());
+    //cout << "Polygon Minor Points" << endl;
+    //for (int i = 0; i < smoothArea[0].size(); ++i) {
+    //    if (writeFile2.is_open()) {
+    //        cout << smoothArea[0][i] << endl;
+    //        writeFile2 << smoothArea[0][i] << endl;
+    //    }
+    //}
 
-    string filePath5 = "C:\\Users\\daniel\\Desktop\\minor2.txt";
-    ofstream writeFile5(filePath5.data());
-    for (int i = 0; i < smoothArea[1].size(); ++i) {
-        if (writeFile5.is_open()) {
-            writeFile5 << smoothArea[1][i] << endl;
-        }
-    }
-    writeFile2.close();
+    //string filePath5 = "C:\\Users\\daniel\\Desktop\\minor2.txt";
+    //ofstream writeFile5(filePath5.data());
+    //for (int i = 0; i < smoothArea[1].size(); ++i) {
+    //    if (writeFile5.is_open()) {
+    //        cout << smoothArea[1][i] << endl;
+    //        writeFile5 << smoothArea[1][i] << endl;
+    //    }
+    //}
+    //writeFile2.close();
 
-    cout << "==========================================" << endl << endl;
+    //cout << "==========================================" << endl << endl;
 
 
-    string filePath3 = "C:\\Users\\daniel\\Desktop\\entry.txt";
-    ofstream writeFile3(filePath3.data());
-    cout << "Entry path Minor Points" << endl;
-    for (int i = 0; i < entryPath1.size(); ++i) {
-        if (writeFile3.is_open()) {
-            cout << entryPath1[i] << endl;
-            writeFile3 << entryPath1[i] << endl;
-        }
-    }
-    string filePath4 = "C:\\Users\\daniel\\Desktop\\entry2.txt";
-    ofstream writeFile4(filePath4.data());
+    //string filePath3 = "C:\\Users\\daniel\\Desktop\\entry.txt";
+    //ofstream writeFile3(filePath3.data());
+    //cout << "Entry path Minor Points" << endl;
+    //for (int i = 0; i < entryPath[0].size(); ++i) {
+    //    if (writeFile3.is_open()) {
+    //        cout << entryPath[0][i] << endl;
+    //        writeFile3 << entryPath[0][i] << endl;
+    //    }
+    //}
+    //string filePath4 = "C:\\Users\\daniel\\Desktop\\entry2.txt";
+    //ofstream writeFile4(filePath4.data());
 
-    for (int i = 0; i < entryPath2.size(); ++i) {
-        if (writeFile4.is_open()) {
-            cout << entryPath2[i] << endl;
-            writeFile4 << entryPath2[i] << endl;
-        }
-    }
-    writeFile4.close();
+    //for (int i = 0; i < entryPath[1].size(); ++i) {
+    //    if (writeFile4.is_open()) {
+    //        cout << entryPath[1][i] << endl;
+    //        writeFile4 << entryPath[1][i] << endl;
+    //    }
+    //}
+    //writeFile4.close();
     
 
     return 0;

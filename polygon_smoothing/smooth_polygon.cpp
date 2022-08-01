@@ -9,6 +9,8 @@ Description: Definition of the SmoothPolygon class methods.
 #include "misc_functions.h"
 
 //initiallize
+
+SmoothPolygon::SmoothPolygon() {}
 SmoothPolygon::SmoothPolygon(float rq, int sp)
 {
 
@@ -117,7 +119,7 @@ void SmoothPolygon::calcMinorPoints()
             result_minor_point = calc_bezier_point(begin_edge_point, cur_major_point,
                 end_edge_point, t);
             this->minor_points.push_back(result_minor_point);
-
+            printf("%lf %lf\n", result_minor_point.x(), result_minor_point.y());
 
             t += delta_t;
         }
@@ -216,64 +218,37 @@ void SmoothPolygon::checkCurvature(float mc)
 
 // Smoothing Entry Path
 vector<Point> SmoothPolygon::getEntryPath(Point startPoint) {
-    // create the entry path
-    //this->entryPoint = closestPoint(startPoint, mp);
-    //this->secondPoint = closestPoint(entryPoint, mp);
-    //vector<Point> tempMinorPoints;
-    //int entry = 0;
-    //Point entryPoint;
-    //Point secondPoint;
     vector<Point> entryPath;
-    //Point Point1= this->minor_points[0];
-    //Point Point2= closestPoint100(Point1, this->minor_points);
-    //vector<Point> ep;
-    //ep.push_back(startPoint);
-    //ep.push_back(Point1);
-    //ep.push_back(Point2);
-    //int lastPoint = num_smooth_points - 1;
-    //int midPoint = num_smooth_points / 2;
-    //float minCost = getCurvature(ep[0], ep[1], ep[2]);
-    //Point a[2];
-    //vector<Point> temp;
-    //for (int i = 0; i < num_minor_points; i++) {
-    //        
-    //    temp = calcMinorPoints_Each(ep, 3, 1, this->round_qualities, this->num_smooth_points);
-    //
-    //    float R = getCurvature(temp[0], temp[midPoint], temp[lastPoint]);
-    //    if (minCost >= R) {
-    //        minCost = R;
-    //        ep[1] = this->minor_points[i];
-    //        ep[2] = closestPoint100(ep[1], this->minor_points);
-    //        a[0] = temp[midPoint];
-    //        a[1] = temp[lastPoint];
-    //    }
-    //}
-    //
-    //entryPath.push_back(startPoint);
-    //entryPath.push_back(a[0]);
-    //entryPath.push_back(a[1]);
-    
-    Point Point1 = this->major_points[0];
-    Point Point2 = closestPoint100(Point1, this->major_points);
+    vector<Point> Hs;
+    int minIdx = -1;
+    int minDist = 100000000;
+    Point MinDistH;
+    Point MinDistMP;
     entryPath.push_back(startPoint);
-    entryPath.push_back(Point1);
-    double cur_gradient = gradient(startPoint.x(), startPoint.y(), Point1.x(), Point1.y());
-    double g = gradient(Point1.x(), Point1.y(), Point2.x(), Point2.y());
-    double ming = fabs(cur_gradient - g);
-    float next;
-    for (vector<int>::size_type i = 1; i < this->major_points.size(); i++) {
+    int  next = 0;
+
+    // 가장 가까운 수선의 발 탐색
+    for (vector<int>::size_type i = 0; i < this->major_points.size(); i++) {
         if (i == this->major_points.size() - 1) next = 0;
         else next = i + 1;
-
-        g = gradient(this->major_points[next].x(), this->major_points[next].y(), this->major_points[i].x(), this->major_points[i].y());
-        cur_gradient = gradient(startPoint.x(), startPoint.y(), this->major_points[i].x(), this->major_points[i].y());
-
-        if (fabs(cur_gradient - g) <= ming) {
-            entryPath[1] = this->major_points[i];
+        Point H = pointToLine(this->major_points[i], this->major_points[next], startPoint);
+        Hs.push_back(H);
+    }
+    for (vector<int>::size_type i = 0; i < Hs.size(); i++) {
+        double distH = dist(Hs[i].x(), Hs[i].y(), startPoint.x(), startPoint.y());
+        if (minDist > distH) {
+            minIdx = i;
+            minDist = distH;
         }
     }
-    //entryPath[1] = closestPoint(entryPath[1], this->minor_points);
+
+    MinDistH = Hs[minIdx];
     
+    vector<Point> ThreePoints;
+    ThreePoints.push_back(startPoint);
+    ThreePoints.push_back(MinDistH);
+    ThreePoints.push_back(this->major_points[minIdx]);
+    entryPath = calcMinorPoints_Each(ThreePoints, 3, 1, 1, 10);
     return entryPath;
 }
 
@@ -335,3 +310,4 @@ void SmoothPolygon::calcMinorPoints_entry()
     }
 
 }
+

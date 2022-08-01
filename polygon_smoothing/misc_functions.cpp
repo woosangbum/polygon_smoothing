@@ -127,3 +127,83 @@ double angle(Point a, Point b, Point c) {
     ang = ang * (180 / M_PI);
     return ang;
 }
+
+Point pointToLine(Point mp1, Point mp2, Point ugv) {
+    Point H;
+    float x1 = mp1.x();
+    float y1 = mp1.y();
+    float x2 = mp2.x();
+    float y2 = mp2.y();
+    double gradient1 = (y2-y1) / (x2-x1);
+    double gradient2 = 0;
+    double var1[3];
+    double var2[3];
+
+
+    var1[0] = gradient1;
+    var1[1] = -1;
+    var1[2] = -gradient1*x1 + y1;
+
+    gradient2 = -(1/gradient1);
+    var2[0] = gradient2;
+    var2[1] = -1;
+    var2[2] = ugv.y() - gradient2 * ugv.x();
+
+    equation(var1, var2, H);
+    return H;
+}
+
+void equation(const double* var1, const double* var2, Point& H)
+{
+    double t_var1[3];
+    double t_var2[3];
+    double x, y;
+
+    /* x, y의 계수가 모두 0이면 잘못된 방정식 */
+    if (var1[0] == 0 && var1[1] == 0) {
+        H.a = 0;
+    }
+    if (var2[0] == 0 && var2[1] == 0) {
+        H.a = 0;
+
+    }
+
+    /* 두 방정식 x의 계수가 각각 0이면  */
+    if (var1[0] == 0 && var2[0] == 0) {
+        y = var1[2] / var1[1];
+        if (y != (var2[2] / var2[1])) {
+            H.a = 0;
+
+        }
+        H.a = 0;
+
+    }
+
+    /* 두 방정식 y의 계수가 각각 0이면  */
+    if (var1[1] == 0 && var2[1] == 0) {
+        x = var1[2] / var1[0];
+        if (x != (var2[2] / var2[0])) {
+            H.a = 0;
+
+        }
+        H.a = 1;
+
+    }
+
+    /* x의 계수를 같게 하기 위해서 두 방정식의 x계수를 상대방 방정식에 곱함 */
+    for (int i = 0; i < 3; i++) {
+        t_var1[i] = var1[i] * var2[0];
+        t_var2[i] = var2[i] * var1[0];
+    }
+    if (var1[0] != 0) {
+        y = (t_var2[2] - t_var1[2]) / (t_var1[1] - t_var2[1]);
+        x = (-var1[2] - var1[1] * y) / var1[0];
+    }
+    else {
+        y = var1[2] / var1[1];
+        x = (-var2[2] - var2[1] * y) / var2[0];
+    }
+
+    H.a = x;
+    H.b = y;
+}
