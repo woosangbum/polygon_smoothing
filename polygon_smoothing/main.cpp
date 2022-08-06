@@ -75,81 +75,80 @@ int main(int argc, char** argv)
 
 
     // ===============================================================
-    ////DEBUG
-    //cout << "최소회전반경 : " << 1 / Minimum_turning_radius << endl;
-    //cout << "Polygon Major Points" << endl;
-    //string filePath = "C:\\Users\\daniel\\Desktop\\major.txt";
+    //DEBUG
+    cout << "Polygon Major Points" << endl;
+    string filePath = "C:\\Users\\daniel\\Desktop\\major.txt";
 
-    //ofstream writeFile(filePath.data());
+    ofstream writeFile(filePath.data());
 
-    //for (int i = 0; i < area[0].size(); i++) {
-    //    if (writeFile.is_open()) {
-    //        cout << area[0][i] << endl;
-    //        writeFile << area[0][i] << endl;
-    //        
-    //    }
-    //}
+    for (int i = 0; i < area[0].size(); i++) {
+        if (writeFile.is_open()) {
+            //cout << area[0][i] << endl;
+            writeFile << area[0][i] << endl;
+            
+        }
+    }
 
-    //string filePath7 = "C:\\Users\\daniel\\Desktop\\major2.txt";
+    string filePath7 = "C:\\Users\\daniel\\Desktop\\major2.txt";
 
-    //ofstream writeFile7(filePath7.data());
-    //for (int i = 0; i < area[1].size(); i++) {
-    //    if (writeFile7.is_open()) {
-    //        cout << area[1][i] << endl;
-    //        writeFile7 << area[1][i] << endl;
+    ofstream writeFile7(filePath7.data());
+    for (int i = 0; i < area[1].size(); i++) {
+        if (writeFile7.is_open()) {
+            //cout << area[1][i] << endl;
+            writeFile7 << area[1][i] << endl;
 
-    //    }
-    //}
+        }
+    }
 
-    //writeFile.close();
-    //writeFile7.close();
-    //    
-    //
-    //cout << "======================" << endl;
-    //cout << endl;
+    writeFile.close();
+    writeFile7.close();
+        
+    
+    cout << "======================" << endl;
+    cout << endl;
 
-    //string filePath2 = "C:\\Users\\daniel\\Desktop\\minor.txt";
-    //ofstream writeFile2(filePath2.data());
-    //cout << "Polygon Minor Points" << endl;
-    //for (int i = 0; i < smoothArea[0].size(); ++i) {
-    //    if (writeFile2.is_open()) {
-    //        cout << smoothArea[0][i] << endl;
-    //        writeFile2 << smoothArea[0][i] << endl;
-    //    }
-    //}
+    string filePath2 = "C:\\Users\\daniel\\Desktop\\minor.txt";
+    ofstream writeFile2(filePath2.data());
+    cout << "Polygon Minor Points" << endl;
+    for (int i = 0; i < smoothArea[0].size(); ++i) {
+        if (writeFile2.is_open()) {
+            //cout << smoothArea[0][i] << endl;
+            writeFile2 << smoothArea[0][i] << endl;
+        }
+    }
 
-    //string filePath5 = "C:\\Users\\daniel\\Desktop\\minor2.txt";
-    //ofstream writeFile5(filePath5.data());
-    //for (int i = 0; i < smoothArea[1].size(); ++i) {
-    //    if (writeFile5.is_open()) {
-    //        cout << smoothArea[1][i] << endl;
-    //        writeFile5 << smoothArea[1][i] << endl;
-    //    }
-    //}
-    //writeFile2.close();
+    string filePath5 = "C:\\Users\\daniel\\Desktop\\minor2.txt";
+    ofstream writeFile5(filePath5.data());
+    for (int i = 0; i < smoothArea[1].size(); ++i) {
+        if (writeFile5.is_open()) {
+            //cout << smoothArea[1][i] << endl;
+            writeFile5 << smoothArea[1][i] << endl;
+        }
+    }
+    writeFile2.close();
 
-    //cout << "==========================================" << endl << endl;
+    cout << "==========================================" << endl << endl;
 
 
-    //string filePath3 = "C:\\Users\\daniel\\Desktop\\entry.txt";
-    //ofstream writeFile3(filePath3.data());
-    //cout << "Entry path Minor Points" << endl;
-    //for (int i = 0; i < entryPath[0].size(); ++i) {
-    //    if (writeFile3.is_open()) {
-    //        cout << entryPath[0][i] << endl;
-    //        writeFile3 << entryPath[0][i] << endl;
-    //    }
-    //}
-    //string filePath4 = "C:\\Users\\daniel\\Desktop\\entry2.txt";
-    //ofstream writeFile4(filePath4.data());
+    string filePath3 = "C:\\Users\\daniel\\Desktop\\entry.txt";
+    ofstream writeFile3(filePath3.data());
+    cout << "Entry path Minor Points" << endl;
+    for (int i = 0; i < entryPath[0].size(); ++i) {
+        if (writeFile3.is_open()) {
+            //cout << entryPath[0][i] << endl;
+            writeFile3 << entryPath[0][i] << endl;
+        }
+    }
+    string filePath4 = "C:\\Users\\daniel\\Desktop\\entry2.txt";
+    ofstream writeFile4(filePath4.data());
 
-    //for (int i = 0; i < entryPath[1].size(); ++i) {
-    //    if (writeFile4.is_open()) {
-    //        cout << entryPath[1][i] << endl;
-    //        writeFile4 << entryPath[1][i] << endl;
-    //    }
-    //}
-    //writeFile4.close();
+    for (int i = 0; i < entryPath[1].size(); ++i) {
+        if (writeFile4.is_open()) {
+            //cout << entryPath[1][i] << endl;
+            writeFile4 << entryPath[1][i] << endl;
+        }
+    }
+    writeFile4.close();
     
 
     return 0;

@@ -21,8 +21,10 @@ SmoothPolygon::SmoothPolygon(float rq, int sp)
 
 vector<Point> SmoothPolygon::getSmoothPolygon(vector<Point> mp, float mc) {
     
-    double lowest_dist = dist(mp[1].x(), mp[1].y(), mp[0].x(), mp[0].y());
-    while (lowest_dist < 100) { // 뭉쳐있는 점 처리
+    double lowest_dist = dist(mp[1].x(), mp[1].y(), mp[0].x(), mp[0].y());\
+
+    // 뭉쳐있는 점 처리
+    while (lowest_dist < 100) { 
         int li = lowest_idx(mp);
         lowest_dist = dist(mp[li + 1].x(), mp[li + 1].y(), mp[li].x(), mp[li].y());
 
@@ -30,9 +32,8 @@ vector<Point> SmoothPolygon::getSmoothPolygon(vector<Point> mp, float mc) {
         mp.erase(mp.begin() + li + 1);
     }
 
-    //동일 기울기 점들 제거
+    //유사 기울기 점들 제거
     double cur_gradient = gradient(mp[1].x(), mp[1].y(), mp[0].x(), mp[0].y());
-
     for (vector<int>::size_type i = 1; i < mp.size() - 1; i++) {
         double g = gradient(mp[i + 1].x(), mp[i + 1].y(), mp[i].x(), mp[i].y());
 
@@ -195,7 +196,6 @@ void SmoothPolygon::checkCurvature(float mc)
 
         R = getCurvature(this->minor_points[i], this->minor_points[i + midPoint], this->minor_points[i + lastPoint]);
         float curvature = 1 / R;
-        cout << "곡률 반경 확인 전: " << curvature << endl;
         curvature_t = curvature;
         while (curvature_t > mc && q_temp <= 4.5) {
             q_temp += 0.1;
@@ -209,17 +209,14 @@ void SmoothPolygon::checkCurvature(float mc)
             
             curvature_t = 1 / R_temp;
         }
-        cout << "곡률 반경 확인 후: " << curvature_t << endl;
-
-
     }
-    
 }
 
 // Smoothing Entry Path
 vector<Point> SmoothPolygon::getEntryPath(Point startPoint) {
     vector<Point> entryPath;
-    vector<Point> Hs;
+    vector<Point> HsCCW;
+    vector<Point> HsCW;
     int minIdx = -1;
     int minDist = 100000000;
     Point MinDistH;
@@ -227,23 +224,40 @@ vector<Point> SmoothPolygon::getEntryPath(Point startPoint) {
     entryPath.push_back(startPoint);
     int  next = 0;
 
-    // 가장 가까운 수선의 발 탐색
-    for (vector<int>::size_type i = 0; i < this->major_points.size(); i++) {
+    // StartPoint에서 Major Point 두 개를 통해 만들어진 직선에 내린 수선의 발을 저장하는 벡터 생성(Hs) - Counter Clock Wise
+    for (int i = 0; i < this->num_major_points; i++) {
         if (i == this->major_points.size() - 1) next = 0;
         else next = i + 1;
         Point H = pointToLine(this->major_points[i], this->major_points[next], startPoint);
-        Hs.push_back(H);
+        HsCCW.push_back(H);
     }
-    for (vector<int>::size_type i = 0; i < Hs.size(); i++) {
-        double distH = dist(Hs[i].x(), Hs[i].y(), startPoint.x(), startPoint.y());
-        if (minDist > distH) {
+
+    // StartPoint에서 Major Point 두 개를 통해 만들어진 직선에 내린 수선의 발을 저장하는 벡터 생성(Hs) - Clock Wise
+    for (int i = this->num_major_points-1; i>=0; i--) {
+        if (i == 0) next = this->num_major_points - 1;
+        else next = i - 1;
+        Point H = pointToLine(this->major_points[i], this->major_points[next], startPoint);
+        HsCW.push_back(H);
+    }
+
+    // Major Points 중, StartPoint와 가장 가까운 점 탐색(진입점 탐색)
+    for (int i = 0; i < this->num_major_points; i++) {
+        double distMp = dist(this->major_points[i].x(), this->major_points[i].y(), startPoint.x(), startPoint.y());
+        if (minDist > distMp) {
             minIdx = i;
-            minDist = distH;
+            minDist = distMp;
         }
     }
 
-    MinDistH = Hs[minIdx];
-    
+    // CCW 와 CW 진입경로 중, 더 짧은 경로를 선택
+    double CCWdist = dist(this->major_points[minIdx].x(), this->major_points[minIdx].y(), HsCCW[minIdx].x(), HsCCW[minIdx].y()) + \
+        dist(HsCCW[minIdx].x(), HsCCW[minIdx].y(), startPoint.x(), startPoint.y());
+    double CWdist = dist(this->major_points[minIdx].x(), this->major_points[minIdx].y(), HsCW[minIdx].x(), HsCW[minIdx].y()) + \
+        dist(HsCW[minIdx].x(), HsCW[minIdx].y(), startPoint.x(), startPoint.y());
+
+    MinDistH = (CCWdist > CWdist) ? HsCW[minIdx] : HsCCW[minIdx];
+
+    // Enrty Path의 기본이 되는 세 개의 점을 저장하고, 베지에 커브 적용
     vector<Point> ThreePoints;
     ThreePoints.push_back(startPoint);
     ThreePoints.push_back(MinDistH);
