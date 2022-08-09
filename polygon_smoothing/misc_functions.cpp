@@ -207,3 +207,42 @@ void equation(const double* var1, const double* var2, Point& H)
     H.a = x;
     H.b = y;
 }
+
+vector<Point> getLinearInterpolation(vector<Point> tmp, bool circular) {
+    int cnt = 0;
+    double node_interval = 100.0;
+    vector<Point> result;
+    int num;
+
+    while (cnt < tmp.size()) {
+        int next = cnt + 1;
+
+        if (cnt == tmp.size() - 1) {
+            if (circular) next = 0;
+            else return result;
+        }
+
+        double id1_x = tmp[cnt].x();
+        double id2_x = tmp[next].x();
+        double id1_y = tmp[cnt].y();
+        double id2_y = tmp[next].y();
+
+        double temp_dist = dist(id1_x, id1_y, id2_x, id2_y);
+
+        int n = ceil((1 / node_interval) * temp_dist + 1);
+
+        result.push_back(Point(id1_x, id1_y));
+
+        for (int i = 1; i < n; i++) {
+            double temp_point_x = (id1_x * (n - 1 - i) + id2_x * i) / (n - 1);
+            double temp_point_y = (id1_y * (n - 1 - i) + id2_y * i) / (n - 1);
+            result.push_back(Point(temp_point_x, temp_point_y));
+        }
+        cnt += 1;
+
+        result.push_back(Point(id2_x, id2_y));
+
+    }
+    return result;
+
+}

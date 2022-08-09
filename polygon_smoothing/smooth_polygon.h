@@ -80,6 +80,8 @@ public:
     SmoothPolygon(float rq, int sp); // constructor
     vector<Point> getSmoothPolygon(vector<Point> mp, float mc);
     vector<Point> getEntryPath(Point startPoint);
+
+
     ~SmoothPolygon() { };
 };
 

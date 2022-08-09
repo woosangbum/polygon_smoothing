@@ -13,10 +13,8 @@ Description: Definition of the SmoothPolygon class methods.
 SmoothPolygon::SmoothPolygon() {}
 SmoothPolygon::SmoothPolygon(float rq, int sp)
 {
-
     this->num_smooth_points = sp;
     this->round_qualities = rq;
-
 }
 
 vector<Point> SmoothPolygon::getSmoothPolygon(vector<Point> mp, float mc) {
@@ -120,7 +118,6 @@ void SmoothPolygon::calcMinorPoints()
             result_minor_point = calc_bezier_point(begin_edge_point, cur_major_point,
                 end_edge_point, t);
             this->minor_points.push_back(result_minor_point);
-            printf("%lf %lf\n", result_minor_point.x(), result_minor_point.y());
 
             t += delta_t;
         }
@@ -219,8 +216,12 @@ vector<Point> SmoothPolygon::getEntryPath(Point startPoint) {
     vector<Point> HsCW;
     int minIdx = -1;
     int minDist = 100000000;
-    Point MinDistH;
     Point MinDistMP;
+    int minIdx2 = -1;
+    int minDist2 = 100000000;
+    Point MinDistMP2;
+
+    Point MinDistH;
     entryPath.push_back(startPoint);
     int  next = 0;
 
@@ -257,11 +258,20 @@ vector<Point> SmoothPolygon::getEntryPath(Point startPoint) {
 
     MinDistH = (CCWdist > CWdist) ? HsCW[minIdx] : HsCCW[minIdx];
 
+    // 진입 major point와 가장 가까운 minor point 탐색
+    for (int i = 0; i < this->num_minor_points; i++) {
+        double distMp = dist(this->major_points[minIdx].x(), this->major_points[minIdx].y(), this->minor_points[i].x(), this->minor_points[i].y());
+        if (minDist2 > distMp) {
+            minIdx2 = i;
+            minDist2 = distMp;
+        }
+    }
+
     // Enrty Path의 기본이 되는 세 개의 점을 저장하고, 베지에 커브 적용
     vector<Point> ThreePoints;
     ThreePoints.push_back(startPoint);
     ThreePoints.push_back(MinDistH);
-    ThreePoints.push_back(this->major_points[minIdx]);
+    ThreePoints.push_back(this->minor_points[minIdx2]);
     entryPath = calcMinorPoints_Each(ThreePoints, 3, 1, 1, 10);
     return entryPath;
 }
@@ -324,4 +334,6 @@ void SmoothPolygon::calcMinorPoints_entry()
     }
 
 }
+
+
 

@@ -7,6 +7,7 @@ Description: Declaration of the misc functions
 
 #ifndef MISC_FUNCTIONS_H_
 #define MISC_FUNCTIONS_H_
+#include <cmath>
 
 Point find_between_point(Point begin_point, Point end_point, float alpha);
 // Function to calculate the point position between other two points
@@ -24,4 +25,6 @@ float getCurvature(Point p1, Point p2, Point p3);
 double angle(Point a, Point b, Point c);
 Point pointToLine(Point mp1, Point mp2, Point ugv);
 void equation(const double* var1, const double* var2, Point& H);
+vector<Point> getLinearInterpolation(vector<Point> tmp, bool circular);
+
 #endif // MISC_FUNCTIONS_H_
