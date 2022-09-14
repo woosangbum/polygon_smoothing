@@ -140,12 +140,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="misc_functions.h" />
+    <ClInclude Include="Pos.h" />
     <ClInclude Include="select_area.h" />
     <ClInclude Include="smooth_polygon.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="misc_functions.cpp" />
+    <ClCompile Include="Pos.cpp" />
     <ClCompile Include="select_area.cpp" />
     <ClCompile Include="smooth_polygon.cpp" />
   </ItemGroup>

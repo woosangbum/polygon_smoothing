@@ -17,36 +17,12 @@ SmoothPolygon::SmoothPolygon(float rq, int sp)
     this->round_qualities = rq;
 }
 
-vector<Point> SmoothPolygon::getSmoothPolygon(vector<Point> mp, float mc) {
+vector<Pos> SmoothPolygon::getSmoothPolygon(vector<Pos> mp, float mc) {
     
-    double lowest_dist = dist(mp[1].x(), mp[1].y(), mp[0].x(), mp[0].y());\
+    if (mp[0].x == mp[mp.size() - 1].x && mp[0].y == mp[mp.size() - 1].y) mp.pop_back();
 
-    // 뭉쳐있는 점 처리
-    while (lowest_dist < 100) { 
-        int li = lowest_idx(mp);
-        lowest_dist = dist(mp[li + 1].x(), mp[li + 1].y(), mp[li].x(), mp[li].y());
-
-        mp[li] = Point((mp[li + 1].x() + mp[li].x()) / 2, (mp[li + 1].y() + mp[li].y()) / 2);
-        mp.erase(mp.begin() + li + 1);
-    }
-
-    //유사 기울기 점들 제거
-    double cur_gradient = gradient(mp[1].x(), mp[1].y(), mp[0].x(), mp[0].y());
-    for (vector<int>::size_type i = 1; i < mp.size() - 1; i++) {
-        double g = gradient(mp[i + 1].x(), mp[i + 1].y(), mp[i].x(), mp[i].y());
-
-        if (fabs(cur_gradient - g) < 1.0) {
-            mp.erase(mp.begin() + i);
-        }
-        cur_gradient = g;
-    }
-    
-
-    // create the polygon
     this->num_major_points = mp.size();
     this->num_minor_points = this->num_major_points * this->num_smooth_points;
-
-    // round qualities
 
     // Calculate coordinates of the polygon major and minor points (de Casteljan algorithm)
     this->setMajorPoints(mp);
@@ -57,26 +33,23 @@ vector<Point> SmoothPolygon::getSmoothPolygon(vector<Point> mp, float mc) {
 }
 
 // Smoothing Polygon
-void SmoothPolygon::setMajorPoints(vector<Point> mp)
+void SmoothPolygon::setMajorPoints(vector<Pos> mp)
 {
-    
-
     for (int i = 0; i < this->num_major_points; ++i)
     { 
         this->major_points.push_back(mp[i]);
     }
-    
 }
 
 void SmoothPolygon::calcMinorPoints()
 {
-    Point prev_major_point;  // Previous major point of the polygon
-    Point cur_major_point;  // Curent major point of the polygon
-    Point next_major_point;  // Next major point of the polygon
+    Pos prev_major_point;  // Previous major point of the polygon
+    Pos cur_major_point;  // Curent major point of the polygon
+    Pos next_major_point;  // Next major point of the polygon
 
-    Point begin_edge_point;  // Begin edge point of the Bezier curve
-    Point end_edge_point;  // End edge point of the Bezier curve
-    Point result_minor_point;  // Point sliding the edge between prev and next major points
+    Pos begin_edge_point;  // Begin edge point of the Bezier curve
+    Pos end_edge_point;  // End edge point of the Bezier curve
+    Pos result_minor_point;  // Pos sliding the edge between prev and next major points
 
     int i, j;  // Temporary counters
     float round_quality;  // Current major point round quality value
@@ -124,15 +97,15 @@ void SmoothPolygon::calcMinorPoints()
     }
 }
 
-vector<Point> SmoothPolygon::calcMinorPoints_Each(vector<Point> mp, int mpn, int mi, float rt, int sp)
+vector<Pos> SmoothPolygon::calcMinorPoints_Each(vector<Pos> mp, int mpn, int mi, float rt, int sp)
 {
-    Point prev_major_point;  // Previous major point of the polygon
-    Point cur_major_point;  // Curent major point of the polygon
-    Point next_major_point;  // Next major point of the polygon
+    Pos prev_major_point;  // Previous major point of the polygon
+    Pos cur_major_point;  // Curent major point of the polygon
+    Pos next_major_point;  // Next major point of the polygon
 
-    Point begin_edge_point;  // Begin edge point of the Bezier curve
-    Point end_edge_point;  // End edge point of the Bezier curve
-    Point result_minor_point;  // Point sliding the edge between prev and next major points
+    Pos begin_edge_point;  // Begin edge point of the Bezier curve
+    Pos end_edge_point;  // End edge point of the Bezier curve
+    Pos result_minor_point;  // Pos sliding the edge between prev and next major points
 
     int i, j;  // Temporary counters
     float round_quality;  // Current major point round quality value
@@ -140,7 +113,7 @@ vector<Point> SmoothPolygon::calcMinorPoints_Each(vector<Point> mp, int mpn, int
     float t;  // t parameter for Bezier points calculation (0 - 1)
 
     // Clear the vector of minor polygon points
-    vector<Point> minorPoints;
+    vector<Pos> minorPoints;
 
     // Current major point definition:
     cur_major_point = mp[mi];
@@ -186,7 +159,7 @@ void SmoothPolygon::checkCurvature(float mc)
     double R_temp;
     float curvature_t = 0;
 
-    vector<Point> tempMinorPoints;
+    vector<Pos> tempMinorPoints;
 
     for (int i = 0; i < num_major_points * num_smooth_points; i += num_smooth_points) {
         float q_temp = this->round_qualities;
@@ -210,40 +183,40 @@ void SmoothPolygon::checkCurvature(float mc)
 }
 
 // Smoothing Entry Path
-vector<Point> SmoothPolygon::getEntryPath(Point startPoint) {
-    vector<Point> entryPath;
-    vector<Point> HsCCW;
-    vector<Point> HsCW;
+vector<Pos> SmoothPolygon::getEntryPath(Pos startPoint) {
+    vector<Pos> entryPath;
+    vector<Pos> HsCCW;
+    vector<Pos> HsCW;
     int minIdx = -1;
     int minDist = 100000000;
-    Point MinDistMP;
+    Pos MinDistMP;
     int minIdx2 = -1;
     int minDist2 = 100000000;
-    Point MinDistMP2;
+    Pos MinDistMP2;
 
-    Point MinDistH;
-    entryPath.push_back(startPoint);
+    Pos MinDistH;
     int  next = 0;
 
-    // StartPoint에서 Major Point 두 개를 통해 만들어진 직선에 내린 수선의 발을 저장하는 벡터 생성(Hs) - Counter Clock Wise
+    // StartPoint에서 Major Pos 두 개를 통해 만들어진 직선에 내린 수선의 발을 저장하는 벡터 생성(Hs) - Counter Clock Wise
     for (int i = 0; i < this->num_major_points; i++) {
         if (i == this->major_points.size() - 1) next = 0;
         else next = i + 1;
-        Point H = pointToLine(this->major_points[i], this->major_points[next], startPoint);
+        Pos H = pointToLine(this->major_points[i], this->major_points[next], startPoint);
         HsCCW.push_back(H);
     }
 
-    // StartPoint에서 Major Point 두 개를 통해 만들어진 직선에 내린 수선의 발을 저장하는 벡터 생성(Hs) - Clock Wise
+    // StartPoint에서 Major Pos 두 개를 통해 만들어진 직선에 내린 수선의 발을 저장하는 벡터 생성(Hs) - Clock Wise
     for (int i = this->num_major_points-1; i>=0; i--) {
         if (i == 0) next = this->num_major_points - 1;
         else next = i - 1;
-        Point H = pointToLine(this->major_points[i], this->major_points[next], startPoint);
+        Pos H = pointToLine(this->major_points[i], this->major_points[next], startPoint);
         HsCW.push_back(H);
+
     }
 
     // Major Points 중, StartPoint와 가장 가까운 점 탐색(진입점 탐색)
     for (int i = 0; i < this->num_major_points; i++) {
-        double distMp = dist(this->major_points[i].x(), this->major_points[i].y(), startPoint.x(), startPoint.y());
+        double distMp = dist(this->major_points[i].x, this->major_points[i].y, startPoint.x, startPoint.y);
         if (minDist > distMp) {
             minIdx = i;
             minDist = distMp;
@@ -251,16 +224,16 @@ vector<Point> SmoothPolygon::getEntryPath(Point startPoint) {
     }
 
     // CCW 와 CW 진입경로 중, 더 짧은 경로를 선택
-    double CCWdist = dist(this->major_points[minIdx].x(), this->major_points[minIdx].y(), HsCCW[minIdx].x(), HsCCW[minIdx].y()) + \
-        dist(HsCCW[minIdx].x(), HsCCW[minIdx].y(), startPoint.x(), startPoint.y());
-    double CWdist = dist(this->major_points[minIdx].x(), this->major_points[minIdx].y(), HsCW[minIdx].x(), HsCW[minIdx].y()) + \
-        dist(HsCW[minIdx].x(), HsCW[minIdx].y(), startPoint.x(), startPoint.y());
+    double CCWdist = dist(this->major_points[minIdx].x, this->major_points[minIdx].y, HsCCW[minIdx].x, HsCCW[minIdx].y) + \
+        dist(HsCCW[minIdx].x, HsCCW[minIdx].y, startPoint.x, startPoint.y);
+    double CWdist = dist(this->major_points[minIdx].x, this->major_points[minIdx].y, HsCW[minIdx].x, HsCW[minIdx].y) + \
+        dist(HsCW[minIdx].x, HsCW[minIdx].y, startPoint.x, startPoint.y);
 
     MinDistH = (CCWdist > CWdist) ? HsCW[minIdx] : HsCCW[minIdx];
 
     // 진입 major point와 가장 가까운 minor point 탐색
     for (int i = 0; i < this->num_minor_points; i++) {
-        double distMp = dist(this->major_points[minIdx].x(), this->major_points[minIdx].y(), this->minor_points[i].x(), this->minor_points[i].y());
+        double distMp = dist(this->major_points[minIdx].x, this->major_points[minIdx].y, this->minor_points[i].x, this->minor_points[i].y);
         if (minDist2 > distMp) {
             minIdx2 = i;
             minDist2 = distMp;
@@ -268,15 +241,17 @@ vector<Point> SmoothPolygon::getEntryPath(Point startPoint) {
     }
 
     // Enrty Path의 기본이 되는 세 개의 점을 저장하고, 베지에 커브 적용
-    vector<Point> ThreePoints;
+    vector<Pos> ThreePoints;
     ThreePoints.push_back(startPoint);
     ThreePoints.push_back(MinDistH);
     ThreePoints.push_back(this->minor_points[minIdx2]);
+    this->entryPoint = this->minor_points[minIdx2];
     entryPath = calcMinorPoints_Each(ThreePoints, 3, 1, 1, 10);
+    this->entryPointIdx = minIdx2;
     return entryPath;
 }
 
-void SmoothPolygon::setMajorPoints_entry(vector<Point> mp)
+void SmoothPolygon::setMajorPoints_entry(vector<Pos> mp)
 {
     for (int i = 0; i < this->num_major_points_entry; ++i)
     {
@@ -291,13 +266,13 @@ void SmoothPolygon::calcMinorPoints_entry()
     /* Method for calculation of the minor polygon points. Calculations are performed
        utilizing de Casteljan algorithm. */
 
-    Point prev_major_point;  // Previous major point of the polygon
-    Point cur_major_point;  // Curent major point of the polygon
-    Point next_major_point;  // Next major point of the polygon
+    Pos prev_major_point;  // Previous major point of the polygon
+    Pos cur_major_point;  // Curent major point of the polygon
+    Pos next_major_point;  // Next major point of the polygon
 
-    Point begin_edge_point;  // Begin edge point of the Bezier curve
-    Point end_edge_point;  // End edge point of the Bezier curve
-    Point result_minor_point;  // Point sliding the edge between prev and next major points
+    Pos begin_edge_point;  // Begin edge point of the Bezier curve
+    Pos end_edge_point;  // End edge point of the Bezier curve
+    Pos result_minor_point;  // Pos sliding the edge between prev and next major points
 
     int i, j;  // Temporary counters
     float round_quality;  // Current major point round quality value
@@ -332,8 +307,14 @@ void SmoothPolygon::calcMinorPoints_entry()
 
         t += delta_t;
     }
-
 }
 
-
+vector<Pos> SmoothPolygon::getTotalPath(Pos startPoint) {
+    vector<Pos> sp = this->minor_points;
+    vector<Pos> ep = getEntryPath(startPoint);
+    ep.reserve(sp.size() + ep.size());
+    ep.insert(ep.end(), sp.begin() + entryPointIdx + 1, sp.end());
+    ep.insert(ep.end(), sp.begin(), sp.begin() + entryPointIdx - 1);
+    return ep;
+}
 
