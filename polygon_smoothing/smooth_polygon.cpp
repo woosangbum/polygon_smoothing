@@ -315,6 +315,7 @@ vector<Pos> SmoothPolygon::getTotalPath(Pos startPoint) {
     ep.reserve(sp.size() + ep.size());
     ep.insert(ep.end(), sp.begin() + entryPointIdx + 1, sp.end());
     ep.insert(ep.end(), sp.begin(), sp.begin() + entryPointIdx - 1);
+    ep.push_back(sp[entryPointIdx + 1]);
     return ep;
 }
 

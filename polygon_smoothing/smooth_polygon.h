@@ -15,34 +15,7 @@ Description: Declaration of the SmoothPolygon class members, Point class members
 
 using namespace std;
 
-//class Point
-//{
-//public:
-//    float a=0.0, b=0.0;
-//    Point() {};
-//    float x() {
-//        return a;
-//    }
-//    float y() {
-//        return b;
-//    }
-//    Point(float a, float b) {
-//        this->a = a;
-//        this->b = b;
-//    }
-//    void setX(float a) {
-//        this->a = a;
-//    }
-//    void setY(float b) {
-//        this->b = b;
-//    }
-//    friend std::ostream& operator << (std::ostream& out, const Point& point)
-//    {
-//        out << "( " << point.a << ", " << point.b << " )";
-//
-//        return out;
-//    }
-//};
+
 
 class SmoothPolygon
 {
