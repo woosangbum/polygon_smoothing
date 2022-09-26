@@ -15,20 +15,26 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="misc_functions.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="smooth_polygon.h">
+    <ClInclude Include="Pos.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="select_area.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Pos.h">
+    <ClInclude Include="smooth_polygon.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="misc_functions.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Pos.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="select_area.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="smooth_polygon.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -36,12 +42,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="misc_functions.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="select_area.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Pos.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

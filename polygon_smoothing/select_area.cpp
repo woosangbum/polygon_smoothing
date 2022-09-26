@@ -1,3 +1,10 @@
+/*
+================================================================================
+Filename: select_area.cpp
+Description: Definition of mission area assignment function
+================================================================================
+*/
+
 #include "select_area.h"
 
 bool compare(const areaByUGV& p1, const areaByUGV& p2) {
@@ -5,28 +12,51 @@ bool compare(const areaByUGV& p1, const areaByUGV& p2) {
 }
 
 void selectArea(SmoothPolygon* sp, Pos* ugv, int areaUGV[], int num_area, int num_ugvs) {
-    vector<Pos> ep;
-    areaByUGV* ugvsCost = new areaByUGV[num_ugvs * num_ugvs];
+    vector<vector<Pos>> ep;
+    areaByUGV* ugvsCost = new areaByUGV[num_ugvs * num_area];
 
-    for (int i = 0; i < num_ugvs; i++) {
+
+    // Create an entry path for all (area-ugv) cases, then store the total path length in the table (ugvsCost)
+    for (int i = 0; i < num_area; i++) {
         for (int j = 0; j < num_ugvs; j++) {
-            ep = sp[i].getEntryPath(ugv[j]); // 각 ugv-area의 거리 계산
-            ugvsCost[i * num_ugvs + j].areaIdx = i;
-            ugvsCost[i * num_ugvs + j].ugvIdx = j;
+            vector<Pos> temp = sp[i].getEntryPath(ugv[j]);
+            ugvsCost[i * num_area + j].areaIdx = i;
+            ugvsCost[i * num_area + j].ugvIdx = j;
             for (int k = 0; k < ep.size() - 1; k++) {
-                ugvsCost[i * num_ugvs + j].dist += dist(ep[k].x, ep[k].y, ep[k + 1].x, ep[k + 1].y);
+                ugvsCost[i * num_area + j].dist += dist(ep[k].x, ep[k].y, ep[k + 1].x, ep[k + 1].y);
             }
         }
     }
-    for (int i = 0; i < num_ugvs * num_ugvs; i++)
-        cout << ugvsCost[i].areaIdx << " " << ugvsCost[i].ugvIdx << " " << ugvsCost[i].dist << endl;
 
+
+    // Create an entry path for all (area-ugv) cases, then store the total path length in the table (ugvsCost)
+    for (int i = 0; i < num_area; i++) {
+        for (int j = 0; j < num_ugvs; j++) {
+            vector<Pos> temp = sp[i].getEntryPath(ugv[j]);
+            ugvsCost[i * num_area + j].areaIdx = i;
+            ugvsCost[i * num_area + j].ugvIdx = j;
+            for (int k = 0; k < ep.size() - 1; k++) {
+                ugvsCost[i * num_area + j].dist += dist(ep[k].x, ep[k].y, ep[k + 1].x, ep[k + 1].y);
+            }
+        }
+    }
+
+    // Add weights for overlapping paths
+        // Create an entry path for all (area-ugv) cases, then store the total path length in the table (ugvsCost)
+    for (int i = 0; i < num_area; i++) {
+        for (int j = 0; j < num_ugvs; j++) {
+            vector<poep = sp[i].getEntryPath(ugv[j]);
+            ep = getLinearInterpolation(ep, false);
+            for (int k = 0; k < ep.size() - 1; k++) {
+                ugvsCost[i * num_area + j].dist += dist(ep[k].x, ep[k].y, ep[k + 1].x, ep[k + 1].y);
+            }
+        }
+    }
+
+    // Sort structures by Dist
     sort(ugvsCost, ugvsCost + num_ugvs * num_ugvs, compare);
 
-    cout << "sorted" << endl;
-    for (int i = 0; i < num_ugvs * num_ugvs; i++)
-        cout << ugvsCost[i].areaIdx << " " << ugvsCost[i].ugvIdx << " " << ugvsCost[i].dist << endl;
-
+    // TODO : Modify the path as close as possible
     bool* selectedArea = new bool[num_ugvs];
     for (int i = 0; i < num_ugvs; i++) selectedArea[i] = false;
 

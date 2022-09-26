@@ -1,9 +1,15 @@
+/*
+================================================================================
+Filename: select_area.h
+Description: Definition of mission area assignment function
+================================================================================
+*/
+
 #pragma once
 #include "smooth_polygon.h"
-#include<algorithm>
+#include <algorithm>
 #include "misc_functions.h"
 #include "Pos.h"
-
 
 struct areaByUGV {
     int areaIdx;

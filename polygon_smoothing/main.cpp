@@ -93,7 +93,6 @@ int main(int argc, char** argv)
     for (int i = 0; i < num_areas; i++) {
         entryPath[i] = sp[i].getEntryPath(ugv[areaUGV[i]]);
         //entryPath[i] = getLinearInterpolation(entryPath[i], false);
-        printf("dist %lf\n", getPathLength(entryPath[i]));
     }
 
     printf("asdasdasdawdawfawfafs");

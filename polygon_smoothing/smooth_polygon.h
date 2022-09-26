@@ -1,8 +1,7 @@
-#pragma once
 /*
 ================================================================================
 Filename: smooth_polygon.h
-Description: Declaration of the SmoothPolygon class members, Point class members.
+Description: Definition of SmoothPolygon
 ================================================================================
 */
 
@@ -15,49 +14,38 @@ Description: Declaration of the SmoothPolygon class members, Point class members
 
 using namespace std;
 
-
-
 class SmoothPolygon
 {
 private:
-    Pos entryPoint;
-    Pos secondPoint;
-    vector<Pos> entryPath;
-    
-
     // polygon
-    int num_major_points = 0;  // Number of major points that form an outer polygon
-    vector<Pos> major_points;  // Vector of the major polygon points
-    int num_minor_points = 0;  // Number of minor points that form a smoothed polygon
-    vector<Pos> minor_points;  // Vector of the minor polygon points
+    int num_major_points = 0;
+    int num_minor_points = 0;
+    vector<Pos> major_points;
+    vector<Pos> minor_points;
 
     // entry path
-    int num_major_points_entry = 0;  // Number of major points that form an outer polygon
-    vector<Pos> major_points_entry;  // Vector of the major polygon points
-    int num_minor_points_entry = 0;  // Number of minor points that form a smoothed polygon
-    vector<Pos> minor_points_entry;  // Vector of the minor polygon points
-    // Method for calculation of the coordinates of major polygon points
-    void setMajorPoints(vector<Pos> mp);
-
-    // Method for calculation of the coordinates of minoe polygon points
-    void calcMinorPoints();
-    vector<Pos> calcMinorPoints_Each(vector<Pos> mp, int mpn, int mi, float rt, int sp);
-
-    void setMajorPoints_entry(vector<Pos> mp);
-    void calcMinorPoints_entry();
-    void checkCurvature(float mc);
+    int num_major_points_entry = 0;
+    vector<Pos> major_points_entry;
+    int num_minor_points_entry = 0;
+    vector<Pos> minor_points_entry;
+    Pos entryPoint;
 
 public:
-    float round_qualities = 0;  // // Rounding quality of the polygon corners 
-    int num_smooth_points = 0;  // Number of the single corner smooth points
-    SmoothPolygon(); // default constructor
-    SmoothPolygon(float rq, int sp); // constructor
-    ~SmoothPolygon() { };
+    float round_qualities = 0;  // The degree of the smoothing vertex, the larger the vertex, the more rounded it becomes
+    int num_smooth_points = 0;  // The number of points that make up a single smoothed vertex
+    int entryPointIdx=0;
+
+    SmoothPolygon();
+    SmoothPolygon(float rq, int sp);
+    ~SmoothPolygon();
     vector<Pos> getSmoothPolygon(vector<Pos> mp, float mc);
     vector<Pos> getEntryPath(Pos startPoint);
     vector<Pos> getTotalPath(Pos startPoint);
-    int entryPointIdx=0;
-
+    void setMajorPoints(vector<Pos> mp);
+    void calcMinorPoints();
+    vector<Pos> calcMinorPoints_Each(vector<Pos> mp, int mpn, int mi, float rt, int sp);
+    void calcMinorPoints_entry();
+    void checkCurvature(float mc);
 };
 
 #endif // SMOOTH_POLYGON_H_
