@@ -15,6 +15,7 @@ struct areaByUGV {
     int areaIdx;
     int ugvIdx;
     float dist;
+    vector<Pos> path;
 };
 
 bool compare(const areaByUGV& p1, const areaByUGV& p2);

@@ -12,41 +12,15 @@ bool compare(const areaByUGV& p1, const areaByUGV& p2) {
 }
 
 void selectArea(SmoothPolygon* sp, Pos* ugv, int areaUGV[], int num_area, int num_ugvs) {
-    vector<vector<Pos>> ep;
+    vector<Pos> ep;
     areaByUGV* ugvsCost = new areaByUGV[num_ugvs * num_area];
 
-
     // Create an entry path for all (area-ugv) cases, then store the total path length in the table (ugvsCost)
     for (int i = 0; i < num_area; i++) {
         for (int j = 0; j < num_ugvs; j++) {
-            vector<Pos> temp = sp[i].getEntryPath(ugv[j]);
+            ep = sp[i].getEntryPath(ugv[j]);
             ugvsCost[i * num_area + j].areaIdx = i;
             ugvsCost[i * num_area + j].ugvIdx = j;
-            for (int k = 0; k < ep.size() - 1; k++) {
-                ugvsCost[i * num_area + j].dist += dist(ep[k].x, ep[k].y, ep[k + 1].x, ep[k + 1].y);
-            }
-        }
-    }
-
-
-    // Create an entry path for all (area-ugv) cases, then store the total path length in the table (ugvsCost)
-    for (int i = 0; i < num_area; i++) {
-        for (int j = 0; j < num_ugvs; j++) {
-            vector<Pos> temp = sp[i].getEntryPath(ugv[j]);
-            ugvsCost[i * num_area + j].areaIdx = i;
-            ugvsCost[i * num_area + j].ugvIdx = j;
-            for (int k = 0; k < ep.size() - 1; k++) {
-                ugvsCost[i * num_area + j].dist += dist(ep[k].x, ep[k].y, ep[k + 1].x, ep[k + 1].y);
-            }
-        }
-    }
-
-    // Add weights for overlapping paths
-        // Create an entry path for all (area-ugv) cases, then store the total path length in the table (ugvsCost)
-    for (int i = 0; i < num_area; i++) {
-        for (int j = 0; j < num_ugvs; j++) {
-            vector<poep = sp[i].getEntryPath(ugv[j]);
-            ep = getLinearInterpolation(ep, false);
             for (int k = 0; k < ep.size() - 1; k++) {
                 ugvsCost[i * num_area + j].dist += dist(ep[k].x, ep[k].y, ep[k + 1].x, ep[k + 1].y);
             }

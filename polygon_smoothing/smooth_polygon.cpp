@@ -272,14 +272,31 @@ vector<Pos> SmoothPolygon::getEntryPath(Pos startPoint)
     return entryPath;
 }
 
-vector<Pos> SmoothPolygon::getTotalPath(Pos startPoint)
-{
-    // A function that connects the entry path and the smoothing path in order
+vector<Pos> SmoothPolygon::getTotalPath(Pos startPoint) {
     vector<Pos> sp = this->minor_points;
     vector<Pos> ep = getEntryPath(startPoint);
     ep.reserve(sp.size() + ep.size());
-    ep.insert(ep.end(), sp.begin() + entryPointIdx + 1, sp.end());
-    ep.insert(ep.end(), sp.begin(), sp.begin() + entryPointIdx - 1);
-    ep.push_back(sp[entryPointIdx + 1]);
+
+    Pos p1 = ep[1];
+    Pos p2 = ep[2];
+    Pos p3 = sp[entryPointIdx + 1];
+    double theta = atan((p1.y - p2.y) / (p1.x - p2.x)) - atan((p3.y - p2.y) / (p3.x - p2.x));
+    double degree = abs(theta * 180 / 3.141592);
+    if (degree > 90) {
+        ep.insert(ep.end(), sp.begin() + entryPointIdx + 1, sp.end());
+        ep.insert(ep.end(), sp.begin(), sp.begin() + entryPointIdx - 1);
+        ep.push_back(sp[entryPointIdx + 1]);
+    }
+    else
+    {
+        vector<Pos> reverseSp;
+        int idx = entryPointIdx - 1;
+        for (int i = 0; i < sp.size(); i++) {
+            reverseSp.push_back(sp[idx]);
+            idx--;
+            if (idx == -1) idx = sp.size() - 1;
+        }
+        ep.insert(ep.end(), reverseSp.begin(), reverseSp.end());
+    }
     return ep;
 }
